@@ -109,6 +109,12 @@ By the end of this book, you’ll have the skills to ground LLMs with RAG and Ne
   
 </details>
 
+<details> 
+  <summary><h2>Errata</h2></summary>
+
+   
+* In preface **To keep up with the latest developments in the fields of Generative AI and LLMs, subscribe to our weekly newsletter, AI_Distilled, at https://packt.link/Q5UyU** _should be_ **<a href="https://packt.link/8Oz6Y">https://packt.link/8Oz6Y</a>**
+   </details>
     
 
 
