@@ -4,3 +4,7 @@
 ch2/fine_tune_rag.py
 ch5/assets
 ch7/assets
+
+
+.venv
+.idea
