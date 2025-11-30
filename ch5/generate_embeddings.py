@@ -36,12 +36,25 @@ def initialize_haystack():
 
 
 # Retrieve movie plots and titles from Neo4j
-def retrieve_movie_plots():
+def retrieve_movie_plots(limit=None):
+    """
+    Retrieve movies that need embeddings.
+    Excludes movies with 'None' or empty overview strings.
+    
+    Args:
+        limit: Maximum number of movies to retrieve. None for all movies.
+    """
     query = """
     MATCH (m:Movie)
-    WHERE m.embedding IS NULL
+    WHERE m.embedding IS NULL 
+      AND m.overview IS NOT NULL 
+      AND m.overview <> 'None'
+      AND trim(m.overview) <> ''
     RETURN m.tmdbId AS tmdbId, m.title AS title, m.overview AS overview
     """
+    if limit:
+        query += f" LIMIT {limit}"
+    
     with driver.session() as session:
         results = session.run(query)
         movies = [
@@ -75,7 +88,7 @@ def generate_and_store_embeddings(embedder, movies, max_workers=10):
         overview = str(movie.get("overview", "")).strip()
         tmdbId = movie.get("tmdbId")
 
-        if not overview:
+        if not overview or overview == "None":
             print(f"⚠️ Skipping {title} — No overview available.")
             return None
 
@@ -121,13 +134,22 @@ def verify_embeddings():
 
 # Main function
 def main():
+    # 테스트용 샘플 크기 (환경변수로 제어 가능)
+    # 0이면 전체, 양수면 해당 개수만 처리
+    SAMPLE_SIZE = int(os.getenv('EMBEDDING_SAMPLE_SIZE', '0'))
+    
     embedder = initialize_haystack()
-    movies = retrieve_movie_plots()
+    movies = retrieve_movie_plots(limit=SAMPLE_SIZE if SAMPLE_SIZE > 0 else None)
 
     if not movies:
         print("No movies found with missing embeddings.")
         return
 
+    if SAMPLE_SIZE > 0:
+        print(f"Generating embeddings for {len(movies)} movies (sample size: {SAMPLE_SIZE})...")
+    else:
+        print(f"Generating embeddings for {len(movies)} movies...")
+    
     generate_and_store_embeddings(embedder, movies, max_workers=20)
     verify_embeddings()
 
