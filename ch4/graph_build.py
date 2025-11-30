@@ -156,7 +156,7 @@ class CreateGraph:
     def load_person_crew(self, csv_file):
         query1 = """
         LOAD CSV WITH HEADERS FROM $csvFile AS row
-        MATCH (m:Movie {tmdbId: toInteger(row.tmdbId)})  // Check if the movie exists
+        MATCH (m:Movie {tmdbId: toInteger(row.tmdbId)})
         MERGE (p:Person {crew_id: toInteger(row.crew_id)})
         ON CREATE SET p.name = row.name, p.role = row.job
         WITH p, m, row,
